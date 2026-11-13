@@ -1,0 +1,94 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-good: var(--good);
+  --color-bad: var(--bad);
+  --color-warn: var(--warn);
+  --color-data: var(--data);
+  --color-data-faint: var(--data-faint);
+}
+
+:root {
+  color-scheme: light;
+  --bg: #f5f5f3;
+  --surface: #fcfcfb;
+  --raised: #eeeeeb;
+  --line: #dddcd6;
+  --ink: #0b0b0b;
+  --muted: #52514e;
+  --accent: #2a78d6;
+  --accent-ink: #1c5fb0;
+  --good: #008300;
+  --bad: #c9302f;
+  --warn: #9a6400;
+  --data: #8f8e88;
+  --data-faint: #d3d2cc;
+  /* categorical slots for the stack-by-sector view, fixed order */
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #6250d6;
+  /* one-hue ramp for furthest stage reached */
+  --r1: #b9d4f3; --r2: #7fb0e8; --r3: #2a78d6; --r4: #174f93; --r5: #0c2f5c;
+}
+.dark {
+  color-scheme: dark;
+  --bg: #111110;
+  --surface: #1a1a19;
+  --raised: #262624;
+  --line: #3a3a37;
+  --ink: #f0efec;
+  --muted: #c3c2b7;
+  --accent: #3987e5;
+  --accent-ink: #7fb3f2;
+  --good: #3fae3f;
+  --bad: #e66767;
+  --warn: #d9a23a;
+  --data: #7d7c76;
+  --data-faint: #45443f;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #9085e9;
+  --r1: #24456f; --r2: #2f66ad; --r3: #3987e5; --r4: #7fb3f2; --r5: #cfe3fb;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+@layer components {
+  .card { @apply rounded-xl border border-line bg-surface; }
+  .btn {
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-line bg-surface px-4 text-sm font-medium text-ink transition-colors hover:bg-raised disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-sm { @apply min-h-9 px-3 text-[13px]; }
+  .btn-primary { @apply border-accent bg-accent text-white hover:bg-accent-ink hover:border-accent-ink; }
+  .btn-danger { @apply text-bad; }
+  .input {
+    @apply block min-h-11 w-full rounded-lg border border-line bg-surface px-3 text-base text-ink placeholder:text-muted/70 sm:text-sm;
+  }
+  textarea.input { @apply py-2; }
+  .label { @apply mb-1 block text-[13px] font-medium text-muted; }
+  .chip { @apply inline-flex items-center gap-1 rounded-full border border-line px-2 py-0.5 text-xs whitespace-nowrap text-muted; }
+  .link { @apply text-accent-ink underline underline-offset-2; }
+}
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.prose-notes :is(p, ul, ol, pre, blockquote) { margin: 0 0 0.6em; }
+.prose-notes :is(ul, ol) { padding-left: 1.25em; list-style: revert; }
+.prose-notes a { color: var(--accent-ink); text-decoration: underline; }
+.prose-notes :is(h1, h2, h3) { font-weight: 600; margin: 0.8em 0 0.3em; }
+.prose-notes code { background: var(--raised); padding: 0 0.25em; border-radius: 4px; }
+
+.recharts-wrapper :focus { outline: none; }

@@ -1,41 +1,60 @@
-# Next.js on Netlify Platform Starter
+# Job Application Tracker
 
-[Live Demo](https://nextjs-platform-starter.netlify.app/)
+A private web app that logs every job application and shows which CV version, sector and source gets replies.
 
-A modern starter based on Next.js 14 (App Router), Tailwind, and [Netlify Core Primitives](https://docs.netlify.com/core/overview/#develop) (Edge Functions, Image CDN, Blob Store).
+React, Vite, TypeScript and Tailwind on the front end, Recharts for charts, Supabase for data, login and CV storage, Netlify for hosting.
 
-In this site, Netlify Core Primitives are used both implictly for running Next.js features (e.g. Route Handlers, image optimization via `next/image`, and more) and also explicitly by the user code.
+## Run it
 
-Implicit usage means you're using any Next.js functionality and everything "just works" when deployed - all the plumbing is done for you. Explicit usage is framework-agnostic and typically provides more features than what Next.js exposes.
-
-## Deploying to Netlify
-
-This site requires [Netlify Next Runtime v5](https://docs.netlify.com/frameworks/next-js/overview/) for full functionality. That version is now being gradually rolled out to all Netlify accounts.
-
-After deploying via the button below, please visit the **Site Overview** page for your new site to check whether it is already using the v5 runtime. If not, you'll be prompted to opt-in to to v5.
-
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/netlify-templates/next-platform-starter)
-
-## Developing Locally
-
-1. Clone this repository, then run `npm install` in its root directory.
-
-2. For the starter to have full functionality locally (e.g. edge functions, blob store), please ensure you have an up-to-date version of Netlify CLI. Run:
-
-```
-npm install netlify-cli@latest -g
+```bash
+npm install
+npm run dev      # http://localhost:5173
+npm test         # analytics unit tests
+npm run build    # type-check and build to dist/
 ```
 
-3. Link your local repository to the deployed Netlify site. This will ensure you're using the same runtime version for both local development and your deployed site.
+With no Supabase keys set the app runs in **demo mode**: no login, and data is kept in the browser's local storage. That is for trying it out only.
 
-```
-netlify link
+## Connect Supabase
+
+1. In the Supabase SQL editor run `supabase/migrations/0001_init.sql`, then `supabase/migrations/0002_storage.sql`.
+2. Authentication > URL configuration: set the Site URL to the Netlify address, and add `http://localhost:5173` as a redirect URL for local work.
+3. Copy `.env.example` to `.env` and fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (Project settings > API). Set the same two variables in Netlify.
+4. Sign in with the magic link. The first sign-in loads the 8 seed roles and 2 CV versions.
+5. Once you are in, turn off new sign-ups (Authentication > Sign in / Providers > Allow new users to sign up). The app has one user; Row Level Security keeps any other account away from your rows either way.
+6. On the CVs screen, use Edit on each seeded version to upload its PDF.
+
+## Row Level Security
+
+Every table has RLS on with an owner-only policy. `supabase/tests/rls_test.sql` checks it with two accounts. To run it against a throwaway local Postgres:
+
+```bash
+createdb jt_test
+psql -d jt_test -v ON_ERROR_STOP=1 \
+  -f supabase/tests/local_shim.sql \
+  -f supabase/migrations/0001_init.sql \
+  -f supabase/tests/rls_test.sql      # ends with "RLS OK"
 ```
 
-4. Then, run the Next.js development server via Netlify CLI:
+`local_shim.sql` stands in for Supabase's `auth` schema and roles; never run it on the real project. The Storage policies in `0002_storage.sql` can only be checked on Supabase itself: sign in as a second account and confirm the first account's PDF will not open.
 
-```
-netlify dev
-```
+## How the numbers are worked out
 
-If your browser doesn't navigate to the site automatically, visit [localhost:8888](http://localhost:8888).
+- **Sent**: reached Applied or later.
+- **Response rate**: sent applications that got any reply (a rejection included), divided by sent. No response and Withdrawn are not replies.
+- **Interview rate / offer rate**: reached Interview / Offer or later, divided by sent.
+- All of these come from the status events, so an application rejected after an interview still counts as an interview.
+- Every rate prints its n. Under 5 the bar is grey and says too few to tell.
+- `pay_annual` is derived when read (midpoint of the range, times the Settings multiplier for day or hourly rates), so changing a multiplier updates every application at once.
+
+## Layout
+
+- `src/lib/analytics.ts`: every metric and chart series, as plain functions (tested in `analytics.test.ts`).
+- `src/lib/store.ts`: the Supabase store and the demo-mode store behind one interface.
+- `src/lib/export.ts`: Export for Claude (Markdown) and CSV.
+- `src/pages/`: the seven screens. `src/components/charts.tsx`: the charts.
+- `supabase/migrations/`: schema, status event trigger, RLS and Storage policies.
+
+Settings are kept in a small fifth table, `settings`, one row per user.
+
+No analytics, tracking scripts or third-party requests. No LinkedIn integration of any kind.
