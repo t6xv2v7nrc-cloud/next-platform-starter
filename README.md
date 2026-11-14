@@ -22,7 +22,8 @@ With no Supabase keys set the app runs in **demo mode**: no login, and data is k
 3. Copy `.env.example` to `.env` and fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (Project settings > API). Set the same two variables in Netlify.
 4. Sign in with the magic link. The first sign-in loads the 8 seed roles and 2 CV versions.
 5. Once you are in, turn off new sign-ups (Authentication > Sign in / Providers > Allow new users to sign up). The app has one user; Row Level Security keeps any other account away from your rows either way.
-6. On the CVs screen, use Edit on each seeded version to upload its PDF.
+6. Optional: in Settings, set a password. You can then sign in on any browser with email and password, with no email to wait for and no email rate limit.
+7. On the CVs screen, use Edit on each seeded version to upload its PDF.
 
 ## Row Level Security
 
