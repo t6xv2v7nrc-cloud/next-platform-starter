@@ -31,6 +31,10 @@ export interface Store {
 
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+/** True when this page was opened from a password-reset email. Read before the client clears the URL. */
+export const openedFromReset = typeof window !== 'undefined' && /type=recovery/.test(window.location.hash + window.location.search);
+/** True when an email link was opened after it expired or was already used. */
+export const openedExpiredLink = typeof window !== 'undefined' && /error_code=otp_expired/.test(window.location.hash + window.location.search);
 export const supabase: SupabaseClient | null = url && key ? createClient(url, key) : null;
 
 function assertCv(status: Application['status'], cvId: string | null | undefined) {
